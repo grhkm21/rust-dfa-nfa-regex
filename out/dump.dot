@@ -1,0 +1,5 @@
+digraph{rankdir="LR";subgraph cluster_nfa1 {label="nfa1";style=dotted;nfa10->nfa11[label="x"];nfa11->nfa12[label="y"];nfa10 [label="0"]nfa11 [label="1"]nfa12 [label="2"]};
+subgraph cluster_nfa2 {label="nfa2";style=dotted;nfa20->nfa21[label="b"];nfa20 [label="0"]nfa21 [label="1"]};
+subgraph cluster_plus {label="plus";style=dotted;plus0->plus1[label="x"];plus1->plus2[label="y"];plus3->plus4[label="b"];plus0 [label="0"]plus1 [label="1"]plus2 [label="2"]plus3 [label="3"]plus4 [label="4"]};
+subgraph cluster_times {label="times";style=dotted;times0->times1[label="x"];times1->times2[label="y"];times1->times3[label="y"];times3->times4[label="b"];times0 [label="0"]times1 [label="1"]times2 [label="2"]times3 [label="3"]times4 [label="4"]};
+}
