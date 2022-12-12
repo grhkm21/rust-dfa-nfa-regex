@@ -1,6 +1,3 @@
-mod dfa;
-mod nfa;
-
 use nfa::*;
 use std::fs;
 

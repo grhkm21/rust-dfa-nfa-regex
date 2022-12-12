@@ -1,2 +1,2 @@
-mod dfa;
-mod nfa;
+pub mod dfa;
+pub mod nfa;
