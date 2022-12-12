@@ -4,11 +4,11 @@ mod nfa;
 use nfa::*;
 use std::fs;
 
-fn main() {
+pub fn main() {
     let r1 = Node(0);
     let r2 = Node(1);
     let r3 = Node(2);
-    let nfa1 = nfa::NFA::new(
+    let nfa1 = NFA::new(
         3,
         [r1].into(),
         [
@@ -18,9 +18,9 @@ fn main() {
         .into(),
         [r3].into(),
     );
-    let nfa2 = nfa::unit(nfa::ExtendedChar::Char('b'));
-    let plus = nfa::plus(&nfa1, &nfa2);
-    let times = nfa::times(&nfa1, &nfa2);
+    let nfa2 = unit(nfa::ExtendedChar::Char('b'));
+    let plus = plus(&nfa1, &nfa2);
+    let times = times(&nfa1, &nfa2);
     println!("{:?}", nfa1);
     println!("{:?}", nfa2);
     println!("{:?}", plus);
