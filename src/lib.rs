@@ -1,2 +1,3 @@
-pub mod dfa;
+#![feature(hash_drain_filter)]
+
 pub mod nfa;
