@@ -23,9 +23,16 @@ Based off of [@raaidrt/reg](https://github.com/raaidrt/reg/).
 #### Visualization
 
 -   [x] Implement exporting NFA to `.dot`
-    -   [ ] Add colors to start and end states
+    -   [x] Add colors to start and end states
+    -   [ ] Add option to color path after calling `.is_match(...)`
 -   [ ] Implement exporting NFA to `.png`
 -   [ ] Implement exporting DFA to `.dot`
 -   [ ] Implement exporting DFA to `.png`
 
+#### Code Base
+
 -   [ ] Abstract `dump`-related functions to separate struct
+
+#### Examples
+
+-   [ ] Add examples for how to use all core functionalities (dump to files, etc.)

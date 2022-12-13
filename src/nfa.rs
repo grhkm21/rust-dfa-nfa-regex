@@ -2,6 +2,7 @@ use char_stream::CharStream;
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use std::fmt;
 use std::fs;
+use std::ops::{BitAnd, BitOr};
 
 #[derive(Hash, Eq, PartialEq, Copy, Clone)]
 pub struct NfaNode(pub usize);
@@ -239,11 +240,11 @@ impl Nfa {
     /* Custom constructors */
 
     // Accepting single character
-    pub fn unit(ec: ExtendedChar) -> Nfa {
+    pub fn unit(ec: impl Into<ExtendedChar>) -> Nfa {
         let mut edges = HashMap::<(NfaNode, ExtendedChar), HashSet<NfaNode>>::new();
         let node0 = NfaNode(0);
         let node1 = NfaNode(1);
-        edges.insert((node0, ec), Into::<HashSet<NfaNode>>::into([node1]));
+        edges.insert((node0, ec.into()), Into::<HashSet<NfaNode>>::into([node1]));
         Nfa::new(
             2,
             Into::<HashSet<NfaNode>>::into([node0]),
@@ -268,6 +269,26 @@ impl Nfa {
         });
 
         Nfa::new(nfa.states, nfa.start_nodes, edges, finish_nodes)
+    }
+
+    pub fn get_star(self) -> Nfa {
+        Nfa::star(self)
+    }
+}
+
+impl BitOr for Nfa {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Nfa::alternate(self, rhs)
+    }
+}
+
+impl BitAnd for Nfa {
+    type Output = Self;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Nfa::concat(self, rhs)
     }
 }
 
@@ -315,9 +336,13 @@ impl NfaExporter {
 
         for u in set_label {
             let mut extra_args = " ".to_string();
-            if nfa.start_nodes.contains(&NfaNode(u)) {
+            let in_start = nfa.start_nodes.contains(&NfaNode(u));
+            let in_finish = nfa.finish_nodes.contains(&NfaNode(u));
+            if in_start && in_finish {
+                extra_args += "style=wedged,fillcolor=\"red:green\"";
+            } else if in_start {
                 extra_args += "color=\"red\"";
-            } else if nfa.finish_nodes.contains(&NfaNode(u)) {
+            } else if in_finish {
                 extra_args += "color=\"green\"";
             }
 
@@ -379,5 +404,11 @@ impl NfaExporter {
         self.args = Vec::new();
 
         str
+    }
+}
+
+impl From<char> for ExtendedChar {
+    fn from(c: char) -> Self {
+        ExtendedChar::Char(c)
     }
 }
