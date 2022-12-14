@@ -422,7 +422,10 @@ impl NfaExporter {
     }
 
     // Dump buffer to file in PNG format
-    // TODO: Refactor
+    // TODO: Refactor code, unify error handling
+    // TODO: Abstract this into separate file
+    // TODO: Allow user to pass arguments
+    // TODO: Support more file extensions
     pub fn dump_to_png(&mut self, file_path: &str) -> Result<(), io::Error> {
         let dumps = self.dumps();
 
@@ -443,6 +446,7 @@ impl NfaExporter {
         }
 
         // Read png
+        // TODO: Optimize this to directly write to file_path
         let mut png_buf = Vec::new();
         if let Err(err) = process.stdout.unwrap().read_to_end(&mut png_buf) {
             panic!("Couldn't read dot stdout: {err}");
