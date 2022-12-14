@@ -22,7 +22,7 @@ pub fn main() -> Result<(), std::io::Error> {
     }
 
     println!("Building NFA with {N} states...");
-    let nfa = Nfa::new(N, [rs[0]].into(), edges, [rs[0]].into());
+    let nfa = &Nfa::new(N, [rs[0]].into(), edges, [rs[0]].into());
 
     for i in 1..=10000 {
         assert_eq!(

@@ -1,3 +1,4 @@
+/*
 use rust_dfa_regex::nfa::{ExtendedChar, Nfa, NfaExporter, NfaNode};
 
 pub fn main() -> Result<(), std::io::Error> {
@@ -52,3 +53,6 @@ pub fn main() -> Result<(), std::io::Error> {
 
     e
 }
+*/
+
+fn main() {}

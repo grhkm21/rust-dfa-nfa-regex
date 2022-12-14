@@ -14,36 +14,21 @@ pub fn main() -> Result<(), std::io::Error> {
     // PART3_2 = [0369]|[258][0369]*[147]
     // PART3_3 = [147]|[258][0369]*[258]
 
-    let args = ('0'..='9').map(Nfa::unit).collect::<Vec<_>>();
-    let (r0, r1, r2, r3, r4, r5, r6, r7, r8, r9) = match &args[..] {
-        [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9] => (
-            r0.clone(),
-            r1.clone(),
-            r2.clone(),
-            r3.clone(),
-            r4.clone(),
-            r5.clone(),
-            r6.clone(),
-            r7.clone(),
-            r8.clone(),
-            r9.clone(),
-        ),
-        _ => unreachable!(),
-    };
+    let r = ('0'..='9').map(Nfa::unit).collect::<Vec<_>>();
 
-    let r0369 = r0 | r3 | r6 | r9;
-    let r147 = r1 | r4 | r7;
-    let r258 = r2 | r5 | r8;
+    let r0369 = &(&r[0] | &r[3] | &r[6] | &r[9]);
+    let r147 = &(&r[1] | &r[4] | &r[7]);
+    let r258 = &(&r[2] | &r[5] | &r[8]);
 
-    let part1 = r0369.clone();
-    let r0369_star = r0369.clone().get_star();
-    let part2 = r147.clone() & r0369_star.clone() & r258.clone();
-    let part3_1 = r258.clone() | (r147.clone() & r0369_star.clone() & r147.clone());
-    let part3_2 = r0369.clone() | (r258.clone() & r0369_star.clone() & r147.clone());
-    let part3_3 = r147.clone() | (r258.clone() & r0369_star.clone() & r258.clone());
-    let part3 = part3_1.clone() & part3_2.clone().get_star() & part3_3.clone();
-    let part = part1.clone() | part2.clone() | part3.clone();
-    let nfa = part.clone() | part.clone().get_star();
+    let part1 = r0369;
+    let r0369_star = &r0369.get_star();
+    let part2 = &(r147 & r0369_star & r258);
+    let part3_1 = &(r258 | (r147 & r0369_star & r147));
+    let part3_2 = &(r0369 | (r258 & r0369_star & r147));
+    let part3_3 = &(r147 | (r258 & r0369_star & r258));
+    let part3 = &(part3_1 & part3_2.get_star() & part3_3);
+    let part = &(part1 | part2 | part3);
+    let nfa = &(part | part.get_star());
 
     for i in 1..=10000 {
         assert_eq!(
@@ -54,7 +39,7 @@ pub fn main() -> Result<(), std::io::Error> {
 
     println!("Passed checks from 1 to 10000!");
 
-    NfaExporter::dump_nfa(nfa.clone(), "out/div_3_regex.dot")?;
+    NfaExporter::dump_nfa(nfa, "out/div_3_regex.dot")?;
 
     Ok(())
 }

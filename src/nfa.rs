@@ -106,7 +106,7 @@ impl Nfa {
     }
 
     // In regex term, transform a, b into a|b
-    pub fn alternate(first: Nfa, second: Nfa) -> Nfa {
+    pub fn alternate(first: &Nfa, second: &Nfa) -> Nfa {
         let increase = |&node| {
             let NfaNode(n) = node;
             NfaNode(n + first.states)
@@ -134,7 +134,7 @@ impl Nfa {
     }
 
     // In Regex term, transforms a, b into ab
-    pub fn concat(first: Nfa, second: Nfa) -> Nfa {
+    pub fn concat(first: &Nfa, second: &Nfa) -> Nfa {
         let states = first.states + second.states;
         let increase = |&node: &NfaNode| -> NfaNode {
             let NfaNode(n) = node;
@@ -254,7 +254,8 @@ impl Nfa {
     }
 
     // In regex term, transform a into a*
-    pub fn star(nfa: Nfa) -> Nfa {
+    pub fn star(nfa: &Nfa) -> Nfa {
+        let start_nodes = nfa.start_nodes.clone();
         let mut finish_nodes = nfa.finish_nodes.clone();
         let mut edges = nfa.edges.clone();
         for (&(NfaNode(n), ch), set) in nfa.edges.iter() {
@@ -268,27 +269,61 @@ impl Nfa {
             finish_nodes.insert(NfaNode(n));
         });
 
-        Nfa::new(nfa.states, nfa.start_nodes, edges, finish_nodes)
+        Nfa::new(nfa.states, start_nodes, edges.clone(), finish_nodes)
     }
 
-    pub fn get_star(self) -> Nfa {
+    pub fn get_star(&self) -> Nfa {
         Nfa::star(self)
     }
 }
 
 impl BitOr for Nfa {
-    type Output = Self;
-
-    fn bitor(self, rhs: Self) -> Self::Output {
-        Nfa::alternate(self, rhs)
+    type Output = Nfa;
+    fn bitor(self, other: Nfa) -> Nfa {
+        Nfa::alternate(&self, &other)
+    }
+}
+impl BitOr for &'_ Nfa {
+    type Output = Nfa;
+    fn bitor(self, other: &Nfa) -> Nfa {
+        Nfa::alternate(self, other)
+    }
+}
+impl BitOr<&'_ Nfa> for Nfa {
+    type Output = Nfa;
+    fn bitor(self, other: &Nfa) -> Nfa {
+        Nfa::alternate(&self, other)
+    }
+}
+impl BitOr<Nfa> for &'_ Nfa {
+    type Output = Nfa;
+    fn bitor(self, other: Nfa) -> Nfa {
+        Nfa::alternate(self, &other)
     }
 }
 
 impl BitAnd for Nfa {
-    type Output = Self;
-
-    fn bitand(self, rhs: Self) -> Self::Output {
-        Nfa::concat(self, rhs)
+    type Output = Nfa;
+    fn bitand(self, other: Nfa) -> Nfa {
+        Nfa::concat(&self, &other)
+    }
+}
+impl BitAnd for &'_ Nfa {
+    type Output = Nfa;
+    fn bitand(self, other: &Nfa) -> Nfa {
+        Nfa::concat(self, other)
+    }
+}
+impl BitAnd<&'_ Nfa> for Nfa {
+    type Output = Nfa;
+    fn bitand(self, other: &Nfa) -> Nfa {
+        Nfa::concat(&self, other)
+    }
+}
+impl BitAnd<Nfa> for &'_ Nfa {
+    type Output = Nfa;
+    fn bitand(self, other: Nfa) -> Nfa {
+        Nfa::concat(self, &other)
     }
 }
 
@@ -312,7 +347,7 @@ impl NfaExporter {
         self.horizontal = false;
     }
 
-    fn add_nfa_impl(&mut self, nfa: Nfa, label: &str, boxed: bool) {
+    fn add_nfa_impl(&mut self, nfa: &Nfa, label: &str, boxed: bool) {
         let mut set_label = BTreeSet::<usize>::new();
 
         // Header
@@ -355,24 +390,24 @@ impl NfaExporter {
 
     // Adds `dot` digraph contained within box to buffer
     // `label` must be unique for each nfa added
-    pub fn add_nfa_boxed(&mut self, nfa: Nfa, label: &str) {
+    pub fn add_nfa_boxed(&mut self, nfa: &Nfa, label: &str) {
         self.add_nfa_impl(nfa, label, true)
     }
 
     // Adds `dot` digraph to buffer without boxing it
     // `label` must be unique for each nfa added
-    pub fn add_nfa_unboxed(&mut self, nfa: Nfa, label: &str) {
+    pub fn add_nfa_unboxed(&mut self, nfa: &Nfa, label: &str) {
         self.add_nfa_impl(nfa, label, false)
     }
 
     // For a single nfa, we directly dump
-    pub fn dump_nfa(nfa: Nfa, file_path: &str) -> Result<(), std::io::Error> {
+    pub fn dump_nfa(nfa: &Nfa, file_path: &str) -> Result<(), std::io::Error> {
         let mut exporter = Self::new();
         exporter.add_nfa_unboxed(nfa, "");
         exporter.dump(file_path)
     }
 
-    pub fn dumps_nfa(nfa: Nfa) -> String {
+    pub fn dumps_nfa(nfa: &Nfa) -> String {
         let mut exporter = Self::new();
         exporter.add_nfa_unboxed(nfa, "");
         exporter.dumps()
