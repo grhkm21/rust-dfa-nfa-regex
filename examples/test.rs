@@ -15,5 +15,9 @@ pub fn main() {
     let unit = &Nfa::unit(ExtendedChar::Char('b'));
     let nfa = &(nfa & unit);
 
-    NfaExporter::dump_nfa(nfa, "out/dump-orig.dot").unwrap();
+    NfaExporter::dump_nfa(nfa, "out/dump-orig1.dot").unwrap();
+
+    let mut exporter = NfaExporter::new();
+    exporter.add_nfa_unboxed(nfa, "Exciting_NFA");
+    exporter.dump_to_png("out/dump-orig2.png").unwrap();
 }

@@ -4,6 +4,7 @@ use rust_dfa_regex::nfa::{Nfa, NfaExporter};
 #[allow(clippy::redundant_clone)]
 pub fn main() -> Result<(), std::io::Error> {
     // Reference: https://stackoverflow.com/a/24195550/16403001
+
     // TARGET = ([0369]|[147][0369]*[258]|(([258]|[147][0369]*[147])([0369]|[258][0369]*[147])*([147]|[258][0369]*[258])))+
 
     // TARGET = PART PART*
@@ -28,7 +29,7 @@ pub fn main() -> Result<(), std::io::Error> {
     let part3_3 = &(r147 | (r258 & r0369_star & r258));
     let part3 = &(part3_1 & part3_2.get_star() & part3_3);
     let part = &(part1 | part2 | part3);
-    let nfa = &(part | part.get_star());
+    let nfa = part | part.get_star();
 
     for i in 1..=10000 {
         assert_eq!(
@@ -39,7 +40,7 @@ pub fn main() -> Result<(), std::io::Error> {
 
     println!("Passed checks from 1 to 10000!");
 
-    NfaExporter::dump_nfa(nfa, "out/div_3_regex.dot")?;
+    NfaExporter::dump_nfa(&nfa, "out/div_3_regex.dot")?;
 
     Ok(())
 }

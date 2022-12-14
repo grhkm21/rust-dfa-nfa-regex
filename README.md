@@ -22,10 +22,11 @@ Based off of [@raaidrt/reg](https://github.com/raaidrt/reg/).
 
 #### Visualization
 
+-   [ ] Add checks on whether `dot` is even installed
 -   [x] Implement exporting NFA to `.dot`
     -   [x] Add colors to start and end states
     -   [ ] Add option to color path after calling `.is_match(...)`
--   [ ] Implement exporting NFA to `.png`
+-   [x] Implement exporting NFA to `.png`
 -   [ ] Implement exporting DFA to `.dot`
 -   [ ] Implement exporting DFA to `.png`
 

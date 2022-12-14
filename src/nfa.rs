@@ -2,7 +2,9 @@ use char_stream::CharStream;
 use std::collections::{BTreeSet, HashMap, HashSet, VecDeque};
 use std::fmt;
 use std::fs;
+use std::io::{self, Read, Write};
 use std::ops::{BitAnd, BitOr};
+use std::process::{Command, Stdio};
 
 #[derive(Hash, Eq, PartialEq, Copy, Clone)]
 pub struct NfaNode(pub usize);
@@ -84,6 +86,7 @@ impl Nfa {
     }
 
     // Match CharStream with the Nfa
+    // TODO: Connect this to NfaExporter to color path of match
     pub fn is_match(&self, stream: &mut CharStream) -> bool {
         let mut nodes: HashSet<NfaNode> = self.start_nodes.clone();
         for ch in stream {
@@ -413,18 +416,39 @@ impl NfaExporter {
         exporter.dumps()
     }
 
-    // Dumps buffer to given file
-    pub fn dump(&mut self, file_path: &str) -> Result<(), std::io::Error> {
-        let mut str = "digraph{".to_string();
-        str += &self.args.join("");
-        if self.horizontal {
-            str += "rankdir=\"LR\";"
+    // Dump buffer to file
+    pub fn dump(&mut self, file_path: &str) -> Result<(), io::Error> {
+        fs::write(file_path, self.dumps())
+    }
+
+    // Dump buffer to file in PNG format
+    // TODO: Refactor
+    pub fn dump_to_png(&mut self, file_path: &str) -> Result<(), io::Error> {
+        let dumps = self.dumps();
+
+        // Create `dot` process to create PNG
+        let process = match Command::new("dot")
+            .arg("-Tpng")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+        {
+            Err(err) => panic!("Couldn't spawn dot: {err}"),
+            Ok(process) => process,
+        };
+
+        // Send input
+        if let Err(err) = process.stdin.unwrap().write_all(dumps.as_bytes()) {
+            panic!("Couldn't write to dot stdin: {err}");
         }
-        str += "}";
 
-        self.args = Vec::new();
+        // Read png
+        let mut png_buf = Vec::new();
+        if let Err(err) = process.stdout.unwrap().read_to_end(&mut png_buf) {
+            panic!("Couldn't read dot stdout: {err}");
+        }
 
-        fs::write(file_path, str)
+        fs::write(file_path, png_buf)
     }
 
     // Returns dumped buffer
